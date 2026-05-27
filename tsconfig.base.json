@@ -4,7 +4,7 @@
         "lib": ["dom", "esnext"],
         "module": "esnext",
         "skipLibCheck": true,
-        "moduleResolution": "node",
+        "moduleResolution": "bundler",
         "resolveJsonModule": true,
         "isolatedModules": true,
         "esModuleInterop": true,
@@ -19,7 +19,6 @@
         "incremental": true,
         "rootDir": "src",
         "sourceMap": true,
-        "baseUrl": "src/",
         "declaration": true,
         "declarationDir": "./dist",
         "outDir": "./dist",
@@ -30,6 +29,6 @@
             }
         ]
     },
-    "include": ["src/**/*", ".next/types/**/*.ts"],
+    "include": ["src/**/*", "next-env.d.ts", ".next/types/**/*.ts"],
     "exclude": ["node_modules"]
 }
