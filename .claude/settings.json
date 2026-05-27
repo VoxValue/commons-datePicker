@@ -1,8 +1,29 @@
 {
+    "alwaysThinkingEnabled": true,
     "permissions": {
-        "allow": ["Bash(npm run test:unit)"]
+        "allow": ["Bash(npm run test:*)", "Read", "Write"],
+        "deny": [
+            "Bash(curl *)",
+            "Bash(rm -rf:*)",
+            "Bash(rm -fr:*)",
+            "Read(.env)",
+            "Read(.env.*)",
+            "Read(**/.env)",
+            "Read(**/.env.*)",
+            "Read(~/.ssh/**)",
+            "Read(~/.aws/**)",
+            "Read(**/*credential*)",
+            "Read(**/*secret*)",
+            "Read(**/*.pem)",
+            "Read(**/*.key)"
+        ]
+    },
+    "env": {
+        "CLAUDE_CODE_ENABLE_TELEMETRY": "1",
+        "OTEL_METRICS_EXPORTER": "otlp"
     },
     "worktree": {
+        "baseRef": "head",
         "symlinkDirectories": ["node_modules"]
     },
     "hooks": {
