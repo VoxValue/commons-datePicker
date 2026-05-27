@@ -38,3 +38,71 @@ No unit test suite exists in this project. The following verifications were perf
 - `./node_modules/.bin/tsc --noEmit` — 0 errors after config changes
 - `npm run build` — lint passed, Rollup produced `dist/index.cjs.js` and `dist/index.esm.js` without
   errors
+
+---
+
+## 2026-05-27 — Replace Rollup with tsdown, remove Husky
+
+### Summary
+
+Migrated the library build pipeline from Rollup 4 to tsdown 0.22 (backed by rolldown v1 / Rust).
+Removed Husky pre-commit hooks and all related tooling (`husky`, `pinst`, `lint-staged`).
+
+### Files changed
+
+| File | Change |
+| --- | --- |
+| `package.json` | Removed `rollup`, `@rollup/plugin-*`, `husky`, `pinst`, `lint-staged`. Added `tsdown ^0.22.0`. Updated `main`/`module`/`types` to new output filenames. Added `exports` conditional map. Updated `build`/`watch`/`clean` scripts. Removed `prepare` script. |
+| `tsdown.config.ts` | New — tsdown config: entry `src/index.tsx`, formats CJS+ESM, `deps.neverBundle` for react+dayjs, DTS enabled, sourcemaps, points to `tsconfig.build.json`. |
+| `tsconfig.build.json` | New — renamed from `tsconfig.rollup.json`; extends `tsconfig.base.json` with `"jsx": "react-jsx"` for the build pipeline. |
+| `tsconfig.rollup.json` | Deleted — superseded by `tsconfig.build.json`. |
+| `rollup.config.js` | Deleted. |
+| `.husky/pre-commit` | Deleted. |
+| `.husky/pre-push` | Deleted. |
+| `CLAUDE.md` | Updated Technology Stack table, Published exports, and Build Pipeline section. |
+
+### Decisions
+
+- **tsdown over tsup/esbuild**: tsdown is backed by rolldown (Rust, fast) and is the explicit
+  replacement requested. It produces `.cjs`/`.mjs` outputs with paired `.d.cts`/`.d.mts`
+  declarations, which is the modern dual-format standard.
+- **`exports` conditional map added**: Required so TypeScript consumers correctly resolve types for
+  the format they import. `"types"` field kept as CJS fallback for older tools.
+- **`deps.neverBundle` instead of `external`**: `external` was deprecated in tsdown 0.22; the
+  replacement is `deps.neverBundle`.
+- **`tsconfig.build.json` kept**: `tsconfig.json` must retain `"jsx": "preserve"` for Next.js;
+  a separate build tsconfig with `"jsx": "react-jsx"` is still needed.
+- **Husky removed without replacing**: No alternative pre-commit hook mechanism was introduced;
+  `lint` and `format` scripts remain available for manual use.
+
+### Testing
+
+- `npm run build` — lint passed, tsdown produced `dist/index.cjs`, `dist/index.mjs`,
+  `dist/index.d.cts`, `dist/index.d.mts` without errors.
+
+---
+
+## 2026-05-27 — Drop CJS output, ESM-only
+
+### Summary
+
+Removed CJS format from the build pipeline. The package now ships ESM only.
+
+### Files changed
+
+| File | Change |
+| --- | --- |
+| `tsdown.config.ts` | `format` changed from `["cjs", "esm"]` to `["esm"]`. |
+| `package.json` | Removed `"main"` (CJS entrypoint). Added `"type": "module"`. Updated `"types"` to `dist/index.d.mts`. Removed `require` branch from `exports` map. |
+| `CLAUDE.md` | Updated Published exports and Build Pipeline section. |
+
+### Decisions
+
+- **`"type": "module"` added**: The package is now ESM-only so this is the correct declaration;
+  it also eliminates the tsdown config-reparsing warning introduced previously.
+- **`"main"` removed**: `"main"` is the CJS entrypoint field; it has no meaning for an ESM-only
+  package. Consumers use `"exports"` or `"module"` instead.
+
+### Testing
+
+- `npm run build` — tsdown produced `dist/index.mjs` and `dist/index.d.mts` without errors or warnings.

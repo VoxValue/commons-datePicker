@@ -7,7 +7,7 @@ Tailwind CSS utility classes; the component ships no stylesheet of its own.
 
 - **Package name:** `react-tailwindcss-datepicker`
 - **Source root:** `src/`
-- **Published exports:** `dist/index.cjs.js` (CJS) · `dist/index.esm.js` (ESM) · `dist/index.d.ts`
+- **Published exports:** `dist/index.mjs` (ESM) · `dist/index.d.mts` (TypeScript declarations)
 - **Default export:** `<Datepicker>` component
 - **Named exports:** all types from `src/types/index.ts`
 
@@ -21,7 +21,7 @@ Tailwind CSS utility classes; the component ships no stylesheet of its own.
 | Language        | TypeScript 6                             |
 | Styling         | Tailwind CSS 3 (applied by consumers)    |
 | Date utilities  | dayjs ≥ 1.11 (peer dependency)           |
-| Library bundler | Rollup 4 (`rollup.config.js`)            |
+| Library bundler | tsdown 0.22 (`tsdown.config.ts`)         |
 | Dev / demo app  | Next.js 15 (`app/` directory, port 8888) |
 | Linting         | ESLint 8 + Prettier 3                    |
 | Unit testing    | **none yet** — see Testing section       |
@@ -149,14 +149,13 @@ src/
 ### Build Pipeline
 
 ```
-Rollup (rollup.config.js)
-  └── @rollup/plugin-typescript (tsconfig.rollup.json)
-        → dist/index.cjs.js   (CommonJS)
-        → dist/index.esm.js   (ES Module)
-        → dist/index.d.ts     (TypeScript declarations)
+tsdown (tsdown.config.ts) — backed by rolldown v1
+  └── tsconfig.build.json ("jsx": "react-jsx")
+        → dist/index.mjs      (ES Module)
+        → dist/index.d.mts    (TypeScript declarations)
 ```
 
-`tsconfig.rollup.json` extends `tsconfig.base.json` and sets `"jsx": "react-jsx"`. `tsconfig.json`
+`tsconfig.build.json` extends `tsconfig.base.json` and sets `"jsx": "react-jsx"`. `tsconfig.json`
 extends `tsconfig.base.json` and sets `"jsx": "preserve"` for Next.js IDE support.
 
 ---
