@@ -8,7 +8,7 @@ import reactRefreshPlugin from "eslint-plugin-react-refresh";
 import importPlugin from "eslint-plugin-import";
 
 export default [
-    { ignores: ["dist/**", "assets/**", "app/**", "jest.setup.ts"] },
+    { ignores: ["dist/**", "assets/**", "app/**", "jest.setup.ts",".claude/**"] },
     js.configs.recommended,
     {
         files: ["*.config.js", "*.config.mjs", "*.config.ts"],
