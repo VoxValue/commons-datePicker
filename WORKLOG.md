@@ -4,6 +4,40 @@ Chronological log of significant changes made by Claude Code.
 
 ---
 
+## 2026-05-27 — Upgrade Tailwind CSS v3 → v4 (4.3.0)
+
+### Summary
+
+Upgraded Tailwind CSS from v3.4.x to v4.3.0. Migrated to the new CSS-first configuration model,
+replaced the PostCSS plugin, and removed `autoprefixer` (now built into v4).
+
+### Files changed
+
+| File | Change |
+| --- | --- |
+| `package.json` | `tailwindcss` bumped `^3.4.10` → `^4.3.0`; added `@tailwindcss/postcss@^4.3.0`; removed `autoprefixer`; `@tailwindcss/forms` bumped to `^0.5.11`; updated `description`. |
+| `postcss.config.js` | Replaced `tailwindcss` + `autoprefixer` plugins with `@tailwindcss/postcss`. |
+| `tailwind.config.js` | Deleted — Tailwind v4 uses CSS-based configuration; `content` scanning is automatic; `darkMode: "media"` is the v4 default. |
+| `styles/globals.css` | Replaced `@tailwind base/components/utilities` directives with `@import "tailwindcss"`; forms plugin loaded via `@plugin "@tailwindcss/forms"`. |
+| `CLAUDE.md` | Updated Technology Stack: "Tailwind CSS 3" → "Tailwind CSS 4". |
+
+### Decisions
+
+- **`@tailwindcss/postcss` replaces `tailwindcss` PostCSS plugin**: This is the new integration
+  package in v4; the old plugin is no longer published under `tailwindcss`.
+- **`autoprefixer` removed**: Vendor prefixing is handled internally by Tailwind v4's engine;
+  adding it would be redundant.
+- **`tailwind.config.js` deleted**: The JS config file is not needed — v4 auto-scans source files,
+  the `darkMode: "media"` behaviour is the new default, and the forms plugin is loaded via CSS.
+- **`@tailwindcss/forms` kept at v0.5.11**: This version supports the v4 `@plugin` CSS directive.
+
+### Testing
+
+- `npm run build` — lint passed, tsdown produced `dist/index.mjs` and `dist/index.d.mts` without
+  errors.
+
+---
+
 ## 2026-05-27 — TypeScript 6 upgrade + CLAUDE.md / SKILL.md alignment
 
 ### Summary
