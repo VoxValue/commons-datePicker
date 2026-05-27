@@ -1,7 +1,15 @@
 {
     "alwaysThinkingEnabled": true,
     "permissions": {
-        "allow": ["Bash(npm run test:*)", "Read", "Write"],
+        "allow": [
+            "Bash(npm info *)",
+            "Bash(git add *)",
+            "Bash(git commit -m ' *)",
+            "Bash(npm install *)",
+            "Bash(npm run test:*)",
+            "Read",
+            "Write"
+        ],
         "deny": [
             "Bash(curl *)",
             "Bash(rm -rf:*)",
