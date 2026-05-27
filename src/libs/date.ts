@@ -1,580 +1,202 @@
-import dayjs from "dayjs";
-import isBetween from "dayjs/plugin/isBetween";
-import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
-import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
-import isToday from "dayjs/plugin/isToday";
-
 import { LANGUAGE } from "../constants";
 import { DateType, WeekDaysIndexType, WeekStringType } from "../types";
 
-dayjs.extend(isBetween);
-dayjs.extend(isSameOrAfter);
-dayjs.extend(isSameOrBefore);
-dayjs.extend(isToday);
+type DateUnit = "year" | "month" | "week" | "day" | "date";
+type ManipulateUnit = "year" | "years" | "month" | "months" | "week" | "weeks" | "day" | "days";
 
-export function loadLanguageModule(language = LANGUAGE) {
-    switch (language) {
-        case "af":
-            import("dayjs/locale/af");
-            break;
-        case "am":
-            import("dayjs/locale/am");
-            break;
-        case "ar-dz":
-            import("dayjs/locale/ar-dz");
-            break;
-        case "ar-iq":
-            import("dayjs/locale/ar-iq");
-            break;
-        case "ar-kw":
-            import("dayjs/locale/ar-kw");
-            break;
-        case "ar-ly":
-            import("dayjs/locale/ar-ly");
-            break;
-        case "ar-ma":
-            import("dayjs/locale/ar-ma");
-            break;
-        case "ar-sa":
-            import("dayjs/locale/ar-sa");
-            break;
-        case "ar-tn":
-            import("dayjs/locale/ar-tn");
-            break;
-        case "ar":
-            import("dayjs/locale/ar");
-            break;
-        case "az":
-            import("dayjs/locale/az");
-            break;
-        case "bg":
-            import("dayjs/locale/bg");
-            break;
-        case "bi":
-            import("dayjs/locale/bi");
-            break;
-        case "bm":
-            import("dayjs/locale/bm");
-            break;
-        case "bn-bd":
-            import("dayjs/locale/bn-bd");
-            break;
-        case "bn":
-            import("dayjs/locale/bn");
-            break;
-        case "bo":
-            import("dayjs/locale/bo");
-            break;
-        case "br":
-            import("dayjs/locale/br");
-            break;
-        case "ca":
-            import("dayjs/locale/ca");
-            break;
-        case "cs":
-            import("dayjs/locale/cs");
-            break;
-        case "cv":
-            import("dayjs/locale/cv");
-            break;
-        case "cy":
-            import("dayjs/locale/cy");
-            break;
+function toPlainDate(date: Date): Temporal.PlainDate {
+    return Temporal.PlainDate.from({
+        year: date.getFullYear(),
+        month: date.getMonth() + 1,
+        day: date.getDate()
+    });
+}
 
-        case "da":
-            import("dayjs/locale/da");
-            break;
-        case "de-at":
-            import("dayjs/locale/de-at");
-            break;
-        case "de-ch":
-            import("dayjs/locale/de-ch");
-            break;
-        case "de":
-            import("dayjs/locale/de");
-            break;
-        case "dv":
-            import("dayjs/locale/dv");
-            break;
+function fromPlainDate(pd: Temporal.PlainDate): Date {
+    return new Date(pd.year, pd.month - 1, pd.day);
+}
 
-        case "el":
-            import("dayjs/locale/el");
-            break;
-        case "en-au":
-            import("dayjs/locale/en-au");
-            break;
-        case "en-gb":
-            import("dayjs/locale/en-gb");
-            break;
-        case "en-ie":
-            import("dayjs/locale/en-ie");
-            break;
-        case "en-il":
-            import("dayjs/locale/en-il");
-            break;
-        case "en-in":
-            import("dayjs/locale/en-in");
-            break;
-        case "en-nz":
-            import("dayjs/locale/en-nz");
-            break;
-        case "en-sg":
-            import("dayjs/locale/en-sg");
-            break;
-        case "en-tt":
-            import("dayjs/locale/en-tt");
-            break;
-        case "en":
-            import("dayjs/locale/en");
-            break;
-        case "eo":
-            import("dayjs/locale/eo");
-            break;
-        case "es-do":
-            import("dayjs/locale/es-do");
-            break;
-        case "es-mx":
-            import("dayjs/locale/es-mx");
-            break;
-        case "es-pr":
-            import("dayjs/locale/es-pr");
-            break;
-        case "es-us":
-            import("dayjs/locale/es-us");
-            break;
-        case "es":
-            import("dayjs/locale/es");
-            break;
-        case "et":
-            import("dayjs/locale/et");
-            break;
-        case "eu":
-            import("dayjs/locale/eu");
-            break;
+function nowPlainDate(): Temporal.PlainDate {
+    return Temporal.Now.plainDateISO();
+}
 
-        case "fa":
-            import("dayjs/locale/fa");
-            break;
-        case "fi":
-            import("dayjs/locale/fi");
-            break;
-        case "fo":
-            import("dayjs/locale/fo");
-            break;
-        case "fr-ch":
-            import("dayjs/locale/fr-ch");
-            break;
-        case "fr":
-            import("dayjs/locale/fr");
-            break;
-        case "fy":
-            import("dayjs/locale/fy");
-            break;
-        case "ga":
-            import("dayjs/locale/ga");
-            break;
-        case "gd":
-            import("dayjs/locale/gd");
-            break;
-        case "gl":
-            import("dayjs/locale/gl");
-            break;
-        case "gom-latn":
-            import("dayjs/locale/gom-latn");
-            break;
-        case "gu":
-            import("dayjs/locale/gu");
-            break;
-        case "he":
-            import("dayjs/locale/he");
-            break;
-        case "hi":
-            import("dayjs/locale/hi");
-            break;
-        case "hr":
-            import("dayjs/locale/hr");
-            break;
-        case "ht":
-            import("dayjs/locale/ht");
-            break;
-        case "hu":
-            import("dayjs/locale/hu");
-            break;
-        case "hy-am":
-            import("dayjs/locale/hy-am");
-            break;
-
-        case "id":
-            import("dayjs/locale/id");
-            break;
-        case "is":
-            import("dayjs/locale/is");
-            break;
-        case "it-ch":
-            import("dayjs/locale/it-ch");
-            break;
-        case "it":
-            import("dayjs/locale/it");
-            break;
-
-        case "ja":
-            import("dayjs/locale/ja");
-            break;
-        case "jv":
-            import("dayjs/locale/jv");
-            break;
-
-        case "ka":
-            import("dayjs/locale/ka");
-            break;
-        case "kk":
-            import("dayjs/locale/kk");
-            break;
-        case "ko":
-            import("dayjs/locale/ko");
-            break;
-        case "ku":
-            import("dayjs/locale/ku");
-            break;
-        case "ky":
-            import("dayjs/locale/ky");
-            break;
-
-        case "lb":
-            import("dayjs/locale/lb");
-            break;
-        case "lo":
-            import("dayjs/locale/lo");
-            break;
-        case "lt":
-            import("dayjs/locale/lt");
-            break;
-        case "lv":
-            import("dayjs/locale/lv");
-            break;
-
-        case "me":
-            import("dayjs/locale/me");
-            break;
-        case "mi":
-            import("dayjs/locale/mi");
-            break;
-        case "mk":
-            import("dayjs/locale/mk");
-            break;
-        case "ml":
-            import("dayjs/locale/ml");
-            break;
-        case "mn":
-            import("dayjs/locale/mn");
-            break;
-        case "ms-my":
-            import("dayjs/locale/ms-my");
-            break;
-        case "ms":
-            import("dayjs/locale/ms");
-            break;
-        case "mt":
-            import("dayjs/locale/mt");
-            break;
-        case "my":
-            import("dayjs/locale/my");
-            break;
-
-        case "nb":
-            import("dayjs/locale/nb");
-            break;
-        case "ne":
-            import("dayjs/locale/ne");
-            break;
-        case "nl-be":
-            import("dayjs/locale/nl-be");
-            break;
-        case "nl":
-            import("dayjs/locale/nl");
-            break;
-        case "nn":
-            import("dayjs/locale/nn");
-            break;
-
-        case "oc-lnc":
-            import("dayjs/locale/oc-lnc");
-            break;
-
-        case "pa-in":
-            import("dayjs/locale/pa-in");
-            break;
-        case "pl":
-            import("dayjs/locale/pl");
-            break;
-        case "pt-br":
-            import("dayjs/locale/pt-br");
-            break;
-        case "pt":
-            import("dayjs/locale/pt");
-            break;
-
-        case "rn":
-            import("dayjs/locale/rn");
-            break;
-        case "ro":
-            import("dayjs/locale/ro");
-            break;
-        case "ru":
-            import("dayjs/locale/ru");
-            break;
-        case "rw":
-            import("dayjs/locale/rw");
-            break;
-
-        case "sd":
-            import("dayjs/locale/sd");
-            break;
-        case "se":
-            import("dayjs/locale/se");
-            break;
-        case "si":
-            import("dayjs/locale/si");
-            break;
-        case "sk":
-            import("dayjs/locale/sk");
-            break;
-        case "sl":
-            import("dayjs/locale/sl");
-            break;
-        case "sq":
-            import("dayjs/locale/sq");
-            break;
-        case "sr":
-            import("dayjs/locale/sr");
-            break;
-        case "sr-cyrl":
-            import("dayjs/locale/sr-cyrl");
-            break;
-        case "ss":
-            import("dayjs/locale/ss");
-            break;
-        case "sv-fi":
-            import("dayjs/locale/sv-fi");
-            break;
-        case "sv":
-            import("dayjs/locale/sv");
-            break;
-        case "sw":
-            import("dayjs/locale/sw");
-            break;
-
-        case "ta":
-            import("dayjs/locale/ta");
-            break;
-        case "te":
-            import("dayjs/locale/te");
-            break;
-        case "tg":
-            import("dayjs/locale/tg");
-            break;
-        case "th":
-            import("dayjs/locale/th");
-            break;
-        case "tk":
-            import("dayjs/locale/tk");
-            break;
-        case "tl-ph":
-            import("dayjs/locale/tl-ph");
-            break;
-        case "tlh":
-            import("dayjs/locale/tlh");
-            break;
-        case "tr":
-            import("dayjs/locale/tr");
-            break;
-        case "tzl":
-            import("dayjs/locale/tzl");
-            break;
-        case "tzm-latn":
-            import("dayjs/locale/tzm-latn");
-            break;
-        case "tzm":
-            import("dayjs/locale/tzm");
-            break;
-
-        case "ug-cn":
-            import("dayjs/locale/ug-cn");
-            break;
-        case "uk":
-            import("dayjs/locale/uk");
-            break;
-        case "ur":
-            import("dayjs/locale/ur");
-            break;
-        case "uz-latn":
-            import("dayjs/locale/uz-latn");
-            break;
-        case "uz":
-            import("dayjs/locale/uz");
-            break;
-
-        case "vi":
-            import("dayjs/locale/vi");
-            break;
-
-        case "x-pseudo":
-            import("dayjs/locale/x-pseudo");
-            break;
-
-        case "yo":
-            import("dayjs/locale/yo");
-            break;
-
-        case "zh-cn":
-            import("dayjs/locale/zh-cn");
-            break;
-        case "zh-hk":
-            import("dayjs/locale/zh-hk");
-            break;
-        case "zh-tw":
-            import("dayjs/locale/zh-tw");
-            break;
-        case "zh":
-            import("dayjs/locale/zh");
-            break;
-
+function truncateUnit(pd: Temporal.PlainDate, unit: DateUnit): Temporal.PlainDate {
+    switch (unit) {
+        case "year":
+            return pd.with({ month: 1, day: 1 });
+        case "month":
+            return pd.with({ day: 1 });
         default:
-            import("dayjs/locale/en");
-            break;
+            return pd;
     }
 }
 
-export function dateIsValid(date: DateType) {
-    return dayjs(date).isValid();
+function normalizeDurationUnit(unit: ManipulateUnit): "years" | "months" | "weeks" | "days" {
+    switch (unit) {
+        case "year":
+        case "years":
+            return "years";
+        case "month":
+        case "months":
+            return "months";
+        case "week":
+        case "weeks":
+            return "weeks";
+        default:
+            return "days";
+    }
 }
 
-export function isCurrentDay(date: Date) {
+// no-op: locale is passed directly to Intl at format time
+export function loadLanguageModule(_language = LANGUAGE): void {}
+
+export function dateIsValid(date: DateType): date is Date {
+    if (!date) return false;
+    return !isNaN(date.getTime());
+}
+
+export function isCurrentDay(date: Date): boolean {
     if (!dateIsValid(date)) return false;
-
-    return dayjs(date).isToday();
+    return toPlainDate(date).equals(nowPlainDate());
 }
 
-export function dateIsSame(a: Date, b: Date, unit: dayjs.OpUnitType) {
+export function dateIsSame(a: Date, b: Date, unit: DateUnit): boolean {
     if (!dateIsValid(a) || !dateIsValid(b)) return false;
-
-    return dayjs(a).isSame(dayjs(b), unit);
+    return (
+        Temporal.PlainDate.compare(truncateUnit(toPlainDate(a), unit), truncateUnit(toPlainDate(b), unit)) === 0
+    );
 }
 
-export function dateIsBefore(a: Date, b: Date, unit: dayjs.OpUnitType) {
+export function dateIsBefore(a: Date, b: Date, unit: DateUnit): boolean {
     if (!dateIsValid(a) || !dateIsValid(b)) return false;
-
-    return dayjs(a).isBefore(dayjs(b), unit);
+    return (
+        Temporal.PlainDate.compare(truncateUnit(toPlainDate(a), unit), truncateUnit(toPlainDate(b), unit)) < 0
+    );
 }
 
-export function dateIsAfter(a: Date, b: Date, unit: dayjs.OpUnitType) {
+export function dateIsAfter(a: Date, b: Date, unit: DateUnit): boolean {
     if (!dateIsValid(a) || !dateIsValid(b)) return false;
-
-    return dayjs(a).isAfter(dayjs(b), unit);
+    return (
+        Temporal.PlainDate.compare(truncateUnit(toPlainDate(a), unit), truncateUnit(toPlainDate(b), unit)) > 0
+    );
 }
 
-export function dateIsSameOrBefore(a: DateType, b: DateType, unit: dayjs.OpUnitType) {
+export function dateIsSameOrBefore(a: DateType, b: DateType, unit: DateUnit): boolean {
     if (!dateIsValid(a) || !dateIsValid(b)) return false;
-
-    return dayjs(a).isSameOrBefore(dayjs(b), unit);
+    return (
+        Temporal.PlainDate.compare(truncateUnit(toPlainDate(a), unit), truncateUnit(toPlainDate(b), unit)) <= 0
+    );
 }
 
-export function dateIsSameOrAfter(a: DateType, b: DateType, unit: dayjs.OpUnitType) {
+export function dateIsSameOrAfter(a: DateType, b: DateType, unit: DateUnit): boolean {
     if (!dateIsValid(a) || !dateIsValid(b)) return false;
-
-    return dayjs(a).isSameOrAfter(dayjs(b), unit);
+    return (
+        Temporal.PlainDate.compare(truncateUnit(toPlainDate(a), unit), truncateUnit(toPlainDate(b), unit)) >= 0
+    );
 }
 
 export function dateIsBetween(
     whoIsBetween: Date,
     start: Date,
     end: Date,
-    unit: dayjs.OpUnitType,
+    unit: DateUnit,
     include?: { start?: boolean; end?: boolean }
-) {
-    if (!dateIsValid(whoIsBetween) || !dateIsValid(start) || !dateIsValid(end)) {
-        return false;
-    }
+): boolean {
+    if (!dateIsValid(whoIsBetween) || !dateIsValid(start) || !dateIsValid(end)) return false;
 
-    return dayjs(whoIsBetween).isBetween(
-        dayjs(start),
-        dayjs(end),
-        unit,
-        `${include?.start ? "[" : "("}${include?.end ? "]" : ")"}`
-    );
+    const pw = truncateUnit(toPlainDate(whoIsBetween), unit);
+    const ps = truncateUnit(toPlainDate(start), unit);
+    const pe = truncateUnit(toPlainDate(end), unit);
+
+    const afterStart = include?.start
+        ? Temporal.PlainDate.compare(pw, ps) >= 0
+        : Temporal.PlainDate.compare(pw, ps) > 0;
+
+    const beforeEnd = include?.end
+        ? Temporal.PlainDate.compare(pw, pe) <= 0
+        : Temporal.PlainDate.compare(pw, pe) < 0;
+
+    return afterStart && beforeEnd;
 }
 
-export function dateFormat(date: DateType, format: string, local = "en") {
+export function dateFormat(date: DateType, format: string, locale = LANGUAGE): string | null {
     if (!dateIsValid(date)) return null;
 
-    return dayjs(date).locale(local).format(format);
+    const pd = toPlainDate(date);
+    const jsDate = fromPlainDate(pd);
+
+    return format.replace(/MMMM|MMM|MM|M|YYYY|YY|DD|D/g, token => {
+        switch (token) {
+            case "YYYY":
+                return String(pd.year);
+            case "YY":
+                return String(pd.year).slice(-2);
+            case "MMMM":
+                return new Intl.DateTimeFormat(locale, { month: "long" }).format(jsDate);
+            case "MMM":
+                return new Intl.DateTimeFormat(locale, { month: "short" }).format(jsDate);
+            case "MM":
+                return String(pd.month).padStart(2, "0");
+            case "M":
+                return String(pd.month);
+            case "DD":
+                return String(pd.day).padStart(2, "0");
+            case "D":
+                return String(pd.day);
+            default:
+                return token;
+        }
+    });
 }
 
-export function dateStringToDate(dateString: string) {
-    const parseDate = dayjs(dateString);
-
-    if (!parseDate.isValid()) return null;
-
-    return parseDate.toDate();
+export function dateStringToDate(dateString: string): Date | null {
+    const trimmed = dateString.trim();
+    try {
+        return fromPlainDate(Temporal.PlainDate.from(trimmed));
+    } catch {
+        const d = new Date(trimmed);
+        return isNaN(d.getTime()) ? null : d;
+    }
 }
 
-export function previousMonthBy(date: DateType) {
-    if (!dateIsValid(date)) return dayjs().toDate();
-
-    const parseDate = dayjs(date);
-
-    return parseDate
-        .date(1)
-        .hour(0)
-        .minute(0)
-        .second(0)
-        .month(parseDate.month() - 1)
-        .toDate();
+export function previousMonthBy(date: DateType): Date {
+    if (!dateIsValid(date)) return fromPlainDate(nowPlainDate());
+    return fromPlainDate(toPlainDate(date).subtract({ months: 1 }).with({ day: 1 }));
 }
 
-export function nextMonthBy(date: DateType) {
-    if (!dateIsValid(date)) return dayjs().toDate();
-
-    const parseDate = dayjs(date);
-
-    return parseDate
-        .date(1)
-        .hour(0)
-        .minute(0)
-        .second(0)
-        .month(parseDate.month() + 1)
-        .toDate();
+export function nextMonthBy(date: DateType): Date {
+    if (!dateIsValid(date)) return fromPlainDate(nowPlainDate());
+    return fromPlainDate(toPlainDate(date).add({ months: 1 }).with({ day: 1 }));
 }
 
-export function dateUpdateMonth(date: DateType, value: number) {
-    if (!dateIsValid(date)) return dayjs().toDate();
-
-    return dayjs(date).month(value).toDate();
+export function dateUpdateMonth(date: DateType, value: number): Date {
+    if (!dateIsValid(date)) return fromPlainDate(nowPlainDate());
+    // value is 0-indexed (0=Jan); Temporal months are 1-indexed
+    return fromPlainDate(toPlainDate(date).with({ month: value + 1 }));
 }
 
-export function dateUpdateYear(date: DateType, value: number) {
-    if (!dateIsValid(date)) return dayjs().toDate();
-
-    return dayjs(date).year(value).toDate();
+export function dateUpdateYear(date: DateType, value: number): Date {
+    if (!dateIsValid(date)) return fromPlainDate(nowPlainDate());
+    return fromPlainDate(toPlainDate(date).with({ year: value }));
 }
 
-export function firstDayOfMonth(date?: Date) {
-    return dayjs(date || dayjs())
-        .startOf("month")
-        .toDate();
+export function firstDayOfMonth(date?: Date): Date {
+    const pd = date && dateIsValid(date) ? toPlainDate(date) : nowPlainDate();
+    return fromPlainDate(pd.with({ day: 1 }));
 }
 
-export function endDayOfMonth(date?: Date) {
-    return dayjs(date || dayjs())
-        .endOf("month")
-        .toDate();
+export function endDayOfMonth(date?: Date): Date {
+    const pd = date && dateIsValid(date) ? toPlainDate(date) : nowPlainDate();
+    return fromPlainDate(pd.with({ day: pd.daysInMonth }));
 }
 
-export function dayIndexInWeek(date?: Date) {
-    return dayjs(date || dayjs()).day();
+export function dayIndexInWeek(date?: Date): number {
+    const pd = date && dateIsValid(date) ? toPlainDate(date) : nowPlainDate();
+    // Temporal: Mon=1 … Sun=7  →  % 7 gives Sun=0, Mon=1 … Sat=6  (matches legacy dayjs .day())
+    return pd.dayOfWeek % 7;
 }
 
-export function previousDaysInWeek(date: Date, weekStartDayIndex: WeekDaysIndexType = 0) {
+export function previousDaysInWeek(date: Date, weekStartDayIndex: WeekDaysIndexType = 0): Date[] {
     if (!dateIsValid(date)) return [];
 
     const previousDays: Date[] = [];
@@ -593,7 +215,7 @@ export function previousDaysInWeek(date: Date, weekStartDayIndex: WeekDaysIndexT
     });
 }
 
-export function nextDaysInWeek(date: Date, weekStartDayIndex: WeekDaysIndexType = 0) {
+export function nextDaysInWeek(date: Date, weekStartDayIndex: WeekDaysIndexType = 0): Date[] {
     if (!dateIsValid(date)) return [];
 
     const nextDays: Date[] = [];
@@ -609,25 +231,22 @@ export function nextDaysInWeek(date: Date, weekStartDayIndex: WeekDaysIndexType 
     return nextDays;
 }
 
-export function daysInMonth(date?: dayjs.ConfigType) {
-    const daysNumber = dayjs(date || dayjs()).daysInMonth();
-
-    if (!daysNumber) return 0;
-
-    return daysNumber;
+export function daysInMonth(date?: Date): number {
+    const pd = date && dateIsValid(date) ? toPlainDate(date) : nowPlainDate();
+    return pd.daysInMonth;
 }
 
-export function allDaysInMonth(date?: Date) {
-    if (!dateIsValid(date || new Date())) return [];
+export function allDaysInMonth(date?: Date): Date[] {
+    const checkDate = date || new Date();
+    if (!dateIsValid(checkDate)) return [];
 
-    const maxDaysInMonth = daysInMonth(date);
+    const pd = toPlainDate(checkDate);
+    const maxDays = pd.daysInMonth;
 
     const days: Date[] = [];
-
-    for (let i = 1; i <= maxDaysInMonth; i++) {
-        days.push(dayjs(date).date(i).toDate());
+    for (let i = 1; i <= maxDays; i++) {
+        days.push(fromPlainDate(pd.with({ day: i })));
     }
-
     return days;
 }
 
@@ -652,20 +271,23 @@ export function weekDayStringToIndex(dayString?: WeekStringType): WeekDaysIndexT
     }
 }
 
-export function dateAdd(date: Date, value: number, unit: dayjs.ManipulateType) {
+export function dateAdd(date: Date, value: number, unit: ManipulateUnit): Date {
     if (!dateIsValid(date)) return date;
-
-    return dayjs(date).add(value, unit).toDate();
+    const pd = toPlainDate(date);
+    const durationUnit = normalizeDurationUnit(unit);
+    const result =
+        value >= 0 ? pd.add({ [durationUnit]: value }) : pd.subtract({ [durationUnit]: -value });
+    return fromPlainDate(result);
 }
 
-export function getNextDates(date: Date, limit: number) {
+export function getNextDates(date: Date, limit: number): Date[] {
     if (!dateIsValid(date)) return [];
 
-    const nexDates: Date[] = [];
+    const nextDates: Date[] = [];
 
     for (let i = 1; i <= limit; i++) {
-        nexDates.push(dateAdd(date, i, "day"));
+        nextDates.push(dateAdd(date, i, "day"));
     }
 
-    return nexDates;
+    return nextDates;
 }

@@ -160,6 +160,54 @@ Removed Husky pre-commit hooks and all related tooling (`husky`, `pinst`, `lint-
 
 ---
 
+## 2026-05-27 — Replace dayjs with Temporal API + integrate Jest
+
+### Summary
+
+Removed `dayjs` entirely and rewrote all date utilities in `src/libs/date.ts` using the
+`Temporal` API (TC39 Stage 4 / ECMAScript 2025). Added Jest 29 with `ts-jest` and wrote 88 unit
+tests covering every exported function.
+
+### Files changed
+
+| File | Change |
+| --- | --- |
+| `src/libs/date.ts` | Full rewrite — all dayjs calls replaced with `Temporal.PlainDate`; added local `DateUnit` / `ManipulateUnit` type aliases; `loadLanguageModule` becomes a no-op (Intl handles locale natively); `dateFormat` uses a token-regex approach mapping dayjs format strings (`YYYY`, `MM`, `MMM`, etc.) to `Intl.DateTimeFormat` |
+| `src/libs/__tests__/date.test.ts` | New — 88 tests covering all exported functions |
+| `jest.config.mjs` | New — Jest 29 with `ts-jest` ESM preset and `--experimental-vm-modules` |
+| `jest.setup.ts` | New — installs `@js-temporal/polyfill` on `globalThis` for the test environment |
+| `package.json` | Removed `dayjs` from `peerDependencies` and `devDependencies`; added `jest ^29.7`, `@types/jest ^29.5`, `ts-jest ^29.2`, `@js-temporal/polyfill ^0.5.1`, `jest-environment-jsdom ^29.7`; added `test` / `test:watch` scripts |
+| `eslint.config.mjs` | Added jest globals block for `src/**/__tests__/**`; added `argsIgnorePattern: "^_"` to `@typescript-eslint/no-unused-vars` rule; excluded `jest.setup.ts` from linting |
+| `CLAUDE.md` | Technology stack updated (see below) |
+
+### Decisions
+
+- **`Temporal.PlainDate` as the internal representation**: All date arithmetic uses
+  `Temporal.PlainDate`. The public `Date`-based API (`DateType = null | Date`) is preserved at
+  every function boundary via `toPlainDate` / `fromPlainDate` converters, so consumers see no
+  breaking change.
+- **No polyfill in the library**: The library uses `Temporal` as a global. Consumers are
+  responsible for providing it (native Node 26+ / browser with `@js-temporal/polyfill` or
+  similar). The dev-only `@js-temporal/polyfill` is installed exclusively for the Jest environment.
+- **`loadLanguageModule` kept as a no-op**: `Intl.DateTimeFormat` accepts BCP 47 locale strings
+  directly; there is nothing to pre-load. The function signature is preserved so existing call
+  sites compile without changes.
+- **`dateFormat` token regex**: `MMMM|MMM|MM|M|YYYY|YY|DD|D` processes longest tokens first
+  (regex alternation is left-to-right), preventing double-replacement (e.g. `March` never
+  has its `M` overwritten by the numeric-month rule).
+- **`--experimental-vm-modules`**: Required for Jest to execute ESM TypeScript via `ts-jest`. The
+  flag is well-established for this use case in Node 20+.
+- **`argsIgnorePattern: "^_"` added to ESLint**: The `@typescript-eslint/no-unused-vars`
+  recommended config in v8.60 no longer includes this pattern by default; added explicitly so
+  `_`-prefixed intentionally-unused parameters are not flagged.
+
+### Testing
+
+- `npm test` — 88/88 tests pass (1.0 s)
+- `npm run build` — lint 0 errors, tsdown produced `dist/index.mjs` and `dist/index.d.mts`
+
+---
+
 ## 2026-05-27 — Drop CJS output, ESM-only
 
 ### Summary

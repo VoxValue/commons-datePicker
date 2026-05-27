@@ -20,7 +20,7 @@ Tailwind CSS utility classes; the component ships no stylesheet of its own.
 | UI framework    | React 17 / 18 / 19 (peer dependency)     |
 | Language        | TypeScript 6                             |
 | Styling         | Tailwind CSS 4 (applied by consumers)    |
-| Date utilities  | dayjs ≥ 1.11 (peer dependency)           |
+| Date utilities  | `Temporal` API (TC39/ES2025 — provided by runtime or integrator, no bundle) |
 | Library bundler | tsdown 0.22 (`tsdown.config.ts`)         |
 | Dev / demo app  | Next.js 15 (`app/` directory, port 8888) |
 | Linting         | ESLint 8 + Prettier 3                    |
@@ -164,10 +164,15 @@ extends `tsconfig.base.json` and sets `"jsx": "preserve"` for Next.js IDE suppor
 
 ### Current Status
 
-**No unit tests exist.** The `package.json` includes no Jest or other test runner.
+Jest 29 is integrated with `ts-jest` in ESM mode (`--experimental-vm-modules`). Tests live in
+`__tests__/` directories colocated with the source they cover.
 
-When adding tests, the recommended approach is Jest + `@testing-library/react`, colocated in
-`__tests__/` directories next to the files they cover.
+Run: `npm test` (or `npm run test:watch`).
+
+`src/libs/__tests__/date.test.ts` covers all 23 exported date-utility functions (88 tests).
+
+Component tests (`@testing-library/react`) can be added; `jest-environment-jsdom` is already
+installed — set `@jest-environment jsdom` in the test file or configure `testEnvironment` per file.
 
 ---
 
