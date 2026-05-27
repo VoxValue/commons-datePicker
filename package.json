@@ -1,6 +1,6 @@
 {
-    "name": "react-tailwindcss-datepicker",
-    "version": "2.0.0",
+    "name": "commons-datePicker",
+    "version": "3.0.0",
     "description": "A modern React Datepicker using Tailwind CSS 4",
     "type": "module",
     "module": "dist/index.mjs",
@@ -13,18 +13,15 @@
             }
         }
     },
-    "author": "onesine",
+    "author": "Vox Value Inc.",
     "license": "MIT",
     "scripts": {
-        "watch": "tsdown --watch",
         "clean": "rm -rf dist",
         "lint": "eslint .",
         "lint:fix": "eslint --fix .",
         "format": "npm run lint:fix",
         "build": "npm run lint && npm run clean && tsdown",
-        "test": "node --experimental-vm-modules node_modules/.bin/jest",
-        "test:watch": "node --experimental-vm-modules node_modules/.bin/jest --watch",
-        "pub": "npm run build && np --no-tests"
+        "test": "node --experimental-vm-modules node_modules/.bin/jest"
     },
     "repository": {
         "type": "git",
@@ -34,13 +31,9 @@
         "react-tailwindcss-datepicker",
         "react-datepicker",
         "tailwind-datepicker",
-        "datepicker",
         "date-picker",
-        "daterangepicker",
-        "react-daterangepicker",
-        "date-range",
         "date-range-picker",
-        "tailwind-daterange-picker"
+        "tailwind"
     ],
     "peerDependencies": {
         "react": "^17.0.2 || ^18.2.0 || ^19.0.0"
