@@ -19,7 +19,7 @@ Tailwind CSS utility classes; the component ships no stylesheet of its own.
 | --------------- | ---------------------------------------- |
 | UI framework    | React 17 / 18 / 19 (peer dependency)     |
 | Language        | TypeScript 6                             |
-| Styling         | Tailwind CSS 3 (applied by consumers)    |
+| Styling         | Tailwind CSS 4 (applied by consumers)    |
 | Date utilities  | dayjs ≥ 1.11 (peer dependency)           |
 | Library bundler | tsdown 0.22 (`tsdown.config.ts`)         |
 | Dev / demo app  | Next.js 15 (`app/` directory, port 8888) |
