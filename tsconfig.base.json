@@ -22,13 +22,8 @@
         "declaration": true,
         "declarationDir": "./dist",
         "outDir": "./dist",
-        "inlineSources": true,
-        "plugins": [
-            {
-                "name": "next"
-            }
-        ]
+        "inlineSources": true
     },
-    "include": ["src/**/*", "next-env.d.ts", ".next/types/**/*.ts"],
+    "include": ["src/**/*"],
     "exclude": ["node_modules"]
 }

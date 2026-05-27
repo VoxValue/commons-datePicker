@@ -4,7 +4,5 @@ module.exports = {
     darkMode: "media",
     theme: {},
     variants: {},
-    /* eslint-disable @typescript-eslint/no-require-imports */
     plugins: [require("@tailwindcss/forms")]
-    /* eslint-enable @typescript-eslint/no-require-imports */
 };
