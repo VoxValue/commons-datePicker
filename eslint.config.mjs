@@ -8,12 +8,18 @@ import reactRefreshPlugin from "eslint-plugin-react-refresh";
 import importPlugin from "eslint-plugin-import";
 
 export default [
-    { ignores: ["dist/**", "assets/**", "app/**"] },
+    { ignores: ["dist/**", "assets/**", "app/**", "jest.setup.ts"] },
     js.configs.recommended,
     {
         files: ["*.config.js", "*.config.mjs", "*.config.ts"],
         languageOptions: {
             globals: { ...globals.node }
+        }
+    },
+    {
+        files: ["src/**/__tests__/**/*.{ts,tsx}"],
+        languageOptions: {
+            globals: { ...globals.jest }
         }
     },
     {
@@ -59,7 +65,11 @@ export default [
             ],
             "react/react-in-jsx-scope": "off",
             "react-refresh/only-export-components": "warn",
-            "@typescript-eslint/no-var-requires": 0
+            "@typescript-eslint/no-var-requires": 0,
+            "@typescript-eslint/no-unused-vars": [
+                "error",
+                { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }
+            ]
         }
     }
 ];

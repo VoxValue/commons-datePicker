@@ -22,6 +22,8 @@
         "lint:fix": "eslint --fix .",
         "format": "npm run lint:fix",
         "build": "npm run lint && npm run clean && tsdown",
+        "test": "node --experimental-vm-modules node_modules/.bin/jest",
+        "test:watch": "node --experimental-vm-modules node_modules/.bin/jest --watch",
         "pub": "npm run build && np --no-tests"
     },
     "repository": {
@@ -41,28 +43,31 @@
         "tailwind-daterange-picker"
     ],
     "peerDependencies": {
-        "dayjs": "^1.11.12",
         "react": "^17.0.2 || ^18.2.0 || ^19.0.0"
     },
     "devDependencies": {
         "@eslint/js": "^9.7.0",
         "@tailwindcss/forms": "^0.5.11",
         "@tailwindcss/postcss": "^4.3.0",
+        "@js-temporal/polyfill": "^0.5.1",
+        "@types/jest": "^29.5.0",
         "@types/node": "^22.3.0",
         "@types/react": "^19.0.8",
         "@typescript-eslint/eslint-plugin": "^8.60.0",
         "@typescript-eslint/parser": "^8.60.0",
-        "dayjs": "^1.11.12",
         "eslint": "~9.7.0",
         "eslint-plugin-import": "^2.32.0",
         "eslint-plugin-react": "^7.37.5",
         "eslint-plugin-react-hooks": "^7.1.1",
         "eslint-plugin-react-refresh": "^0.5.2",
         "globals": "^17.6.0",
+        "jest": "^29.7.0",
+        "jest-environment-jsdom": "^29.7.0",
         "postcss": "^8.4.41",
         "react": "^19.0.0",
         "react-dom": "^19.0.0",
         "tailwindcss": "^4.3.0",
+        "ts-jest": "^29.2.0",
         "tsdown": "^0.22.0",
         "tslib": "^2.8.1",
         "typescript": "^6.0.3"
