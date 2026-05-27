@@ -4,6 +4,50 @@ Chronological log of significant changes made by Claude Code.
 
 ---
 
+## 2026-05-27 — ESLint 9 migration, remove Next.js & Prettier
+
+### Summary
+
+Upgraded ESLint from v8 to v9.7 (flat config format), removed all Next.js and Prettier
+dependencies and configuration files.
+
+### Files changed
+
+| File | Change |
+| --- | --- |
+| `eslint.config.mjs` | New — ESLint 9 flat config replacing `.eslintrc.json`; TS/React/hooks/import rules preserved |
+| `.eslintrc.json` | Deleted — superseded by `eslint.config.mjs` |
+| `.eslintignore` | Deleted — ignores now declared in `eslint.config.mjs` |
+| `.prettierrc` | Deleted |
+| `.prettierignore` | Deleted |
+| `next.config.mjs` | Deleted |
+| `next-env.d.ts` | Deleted |
+| `tailwind.config.js` | Removed stale `@typescript-eslint/no-require-imports` disable comments |
+| `package.json` | Added `@eslint/js ^9.7.0`, `globals ^17.6.0`; updated `eslint` to `~9.7.0`; updated all plugins to latest; removed `next`, `eslint-config-next`, `eslint-config-prettier`, `eslint-plugin-prettier`, `prettier`; removed `dev` and `pret:fix` scripts; simplified `format` to `lint:fix` |
+| `tsconfig.base.json` | Removed `plugins: [{ "name": "next" }]`; removed `next-env.d.ts` and `.next/types/**/*.ts` from `include` |
+| `tsconfig.json` | Changed `jsx` from `"preserve"` to `"react-jsx"` (Next.js no longer present) |
+
+### Decisions
+
+- **ESLint 9 flat config**: `.eslintrc.json` is not supported in ESLint 9 by default. Migrated to
+  `eslint.config.mjs` using the flat config array format. Ignores moved inline; `env` replaced by
+  `globals` package entries.
+- **`globals` package**: Required in ESLint 9 flat config to declare browser/node/es2021 globals
+  that were previously handled by `env` in the legacy config.
+- **JS config files block**: `tailwind.config.js` and `postcss.config.js` use CommonJS `module`/
+  `require`; a separate config block applies `globals.node` to `*.config.js` files so `no-undef`
+  does not fire.
+- **`app/` directory ignored**: The Next.js demo app source (`app/layout.tsx`, `app/page.tsx`) was
+  not deleted but is excluded from linting via `ignores: ["app/**"]` since it targets a removed
+  runtime.
+
+### Testing
+
+- `npm run lint` — 0 errors, 0 warnings
+- `npm run build` — lint passed, tsdown produced `dist/index.mjs` and `dist/index.d.mts`
+
+---
+
 ## 2026-05-27 — TypeScript 6 upgrade + CLAUDE.md / SKILL.md alignment
 
 ### Summary
