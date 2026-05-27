@@ -1,46 +1,48 @@
-# @voxvalue/commons — CLAUDE.md
+# react-tailwindcss-datepicker — CLAUDE.md
 
 ## Project Overview
 
-Shared React component library consumed by VoxValue SPAs. Provides authentication (AWS Cognito via
-Amplify), notifications, base inputs, locale loading, and a root layout that wires all providers
-together.
+Standalone React date-picker / date-range-picker component library published to npm. Consumers apply
+Tailwind CSS utility classes; the component ships no stylesheet of its own.
 
-- **Package name:** `@voxvalue/commons`
+- **Package name:** `react-tailwindcss-datepicker`
 - **Source root:** `src/`
-- **Published exports:** `./authentication`, `./notification`, `./components`, `./testing`,
-  `./locales`, `./layout`
+- **Published exports:** `dist/index.cjs.js` (CJS) · `dist/index.esm.js` (ESM) · `dist/index.d.ts`
+- **Default export:** `<Datepicker>` component
+- **Named exports:** all types from `src/types/index.ts`
 
 ---
 
 ## Technology Stack
 
-| Layer                | Technology                                                |
-| -------------------- | --------------------------------------------------------- |
-| UI framework         | React 19 (peer dependency)                                |
-| Language             | TypeScript 6                                              |
-| Styling              | Tailwind CSS (applied by consumers)                       |
-| Authentication       | AWS Amplify v6 + AWS Cognito                              |
-| Internationalization | react-intl 10                                             |
-| Headless components  | @headlessui/react 2 (peer dependency)                     |
-| Icons                | @heroicons/react 2, FontAwesome Pro 7 (peer dependencies) |
-| Logging              | loglevel                                                  |
-| Unit testing         | Jest 30 + @testing-library/react 16                       |
-| Test data            | @faker-js/faker 8                                         |
+| Layer           | Technology                               |
+| --------------- | ---------------------------------------- |
+| UI framework    | React 17 / 18 / 19 (peer dependency)     |
+| Language        | TypeScript 6                             |
+| Styling         | Tailwind CSS 3 (applied by consumers)    |
+| Date utilities  | dayjs ≥ 1.11 (peer dependency)           |
+| Library bundler | Rollup 4 (`rollup.config.js`)            |
+| Dev / demo app  | Next.js 15 (`app/` directory, port 8888) |
+| Linting         | ESLint 8 + Prettier 3                    |
+| Unit testing    | **none yet** — see Testing section       |
 
 ---
 
 ## Commands
 
 ```bash
-# Run all unit tests (Jest)
-npm test
+# Development server (Next.js demo app)
+npm run dev          # http://localhost:8888
 
-# Run a single test file
-npx jest src/authentication/components/__tests__/toSignIn.test.tsx
+# Build the library (lint → clean → rollup)
+npm run build
+
+# Lint only
+npm run lint
+
+# Format (Prettier + ESLint auto-fix)
+npm run format
 ```
-
-The `@config` path alias resolves to `build-config.dev.json` at test time.
 
 ---
 
@@ -48,127 +50,132 @@ The `@config` path alias resolves to `build-config.dev.json` at test time.
 
 ### Naming Conventions
 
-| Kind                            | Convention                            | Examples                                                                |
-| ------------------------------- | ------------------------------------- | ----------------------------------------------------------------------- |
-| React components                | PascalCase                            | `SignIn`, `BaseInput`, `ProfileLayout`                                  |
-| Variables (objects/complex)     | camelCase, prefix `o`                 | `oConfiguration`, `oUserAttributes`, `oErrorData`                       |
-| Parameters / function arguments | camelCase, prefix `a`                 | `aError`, `aEmail`, `aPassword`, `aResponse`                            |
-| Handler / action functions      | verb+noun camelCase                   | `signInAction`, `signUpAction`, `toLoad`, `toSave`                      |
-| Modal/dialog components         | `to` prefix                           | `toSignIn`, `toSignUp`, `toSignOut`, `toSignAway`, `toReinitMyPassword` |
-| Context objects                 | PascalCase + `Context` suffix         | `AuthenticationContext`, `NotificationContext`                          |
-| Custom hooks                    | `use` prefix camelCase                | `useAuthentication`, `useNotificationContext`                           |
-| TypeScript interfaces           | PascalCase + `Type` or `Props` suffix | `AuthenticationContextType`, `InputProps`                               |
+| Kind                       | Convention             | Examples                                        |
+| -------------------------- | ---------------------- | ----------------------------------------------- |
+| React components           | PascalCase             | `Datepicker`, `Calendar`, `Shortcuts`, `Footer` |
+| Props interfaces           | PascalCase + `Type`    | `DatepickerType`, `ButtonProps`, `IconProps`    |
+| Context store interface    | PascalCase             | `DatepickerStore`                               |
+| Type aliases               | PascalCase + `Type`    | `DateType`, `DateRangeType`, `ColorKeys`        |
+| Utility / helper functions | camelCase, verb prefix | `dateIsValid`, `dateFormat`, `nextMonthBy`      |
+| Constants                  | UPPER_SNAKE_CASE       | `DEFAULT_COLOR`, `DATE_FORMAT`, `LANGUAGE`      |
+| Color map objects          | UPPER_SNAKE_CASE       | `BG_COLOR`, `TEXT_COLOR`, `BORDER_COLOR`        |
 
 ### TypeScript
 
-- Strict mode is enabled (`tsconfig.json`).
-- All props must be typed via interfaces.
+- Strict mode is enabled (`tsconfig.base.json`).
+- All component props typed via `*Type` or `*Props` interfaces in `src/types/index.ts`.
 - No `any` unless genuinely unavoidable.
-- Path alias: `@config` → `build-config.dev.json` (Cognito pool config injected at build time).
+- Tailwind color maps cannot use string interpolation — they must be static string literals (see
+  `src/constants/index.ts` comments).
 
 ### React
 
 - Functional components only (no class components).
-- Use `useActionState` (React 19) for all form submissions with async side effects.
 - Memoize context values with `useMemo` to avoid unnecessary re-renders.
-- Sub-components (e.g. `SubmitButton`, `CancelButton`) may be defined inside the same file when only
-  used there.
-- All user-facing strings must go through `<FormattedMessage>` or `intl.formatMessage()` — no
-  hardcoded text.
+- Event-handler callbacks must be wrapped with `useCallback`.
+- No hardcoded color or class strings outside `src/constants/index.ts`.
 
 ---
 
 ## Architecture
 
-### Provider Nesting
+### Context
 
-The root `Layout` (exported from `./layout`) wraps children in this fixed order:
+A single `DatepickerContext` (in `src/contexts/DatepickerContext.ts`) holds the entire shared state
+for a mounted `<Datepicker>` instance. The context value is created and memoized inside the
+`Datepicker` component and passed to all child components via `DatepickerContext.Provider`.
 
 ```
-
+<Datepicker>
+  └── DatepickerContext.Provider
+        ├── <Input>
+        └── popup div
+              ├── <Arrow>
+              ├── [<Shortcuts>]
+              ├── <Calendar date={firstDate} …>
+              │     ├── <Week>
+              │     ├── <Days>
+              │     ├── <Months>
+              │     └── <Years>
+              ├── [<VerticalDash>]
+              ├── [<Calendar date={secondDate} …>]   ← only when useRange
+              └── [<Footer>]                          ← only when showFooter
 ```
 
-### Context Pattern
-
-Every context follows this structure:
-
-```typescript
-// 1. Interface
-export interface FooContextType { ... }
-
-// 2. createContext with null default
-const FooContext = createContext<FooContextType | null>(null);
-
-// 3. Provider component (memoize value)
-export const Provider = ({ children }: { children: ReactNode }) => { ... };
-
-// 4. Custom hook (throws if used outside provider)
-export const useFoo = () => {
-    const oContext = useContext(FooContext);
-    if (!oContext) throw new Error('useFoo must be used within a FooProvider');
-    return oContext;
-};
-```
-
-### Form Pattern (React 19 actions)
-
-```typescript
-// Handler signature
-async function signInAction(aPrevState: AuthState, aFormData: FormData): Promise<AuthState> { ... }
-
-// Component usage
-const [oState, formAction, isPending] = useActionState(signInAction, initialState);
-```
-
-### Modal/Dialog Pattern
-
-All authentication modals use a native `<dialog>` element controlled by a `ref`:
-
-- `modalRef.current?.showModal()` to open
-- `modalRef.current?.close()` to close
-- 3-column grid layout: logo | title/form | (labels in rows)
-
----
-
-## File Structure
+### File Structure
 
 ```
 src/
-├──
+├── index.tsx                     # Public entry — re-exports types + default Datepicker
+├── components/
+│   ├── Datepicker.tsx            # Root component, owns state + context
+│   ├── Calendar/
+│   │   ├── index.tsx             # Month header + navigation
+│   │   ├── Days.tsx              # Day grid
+│   │   ├── Months.tsx            # Month picker overlay
+│   │   ├── Week.tsx              # Weekday header row
+│   │   └── Years.tsx             # Year picker overlay
+│   ├── Footer.tsx                # Cancel / Apply buttons
+│   ├── Input.tsx                 # Text input + toggle button
+│   ├── PrimaryButton.tsx
+│   ├── RoundedButton.tsx
+│   ├── SecondaryButton.tsx
+│   ├── Shortcuts.tsx             # Pre-defined period shortcuts
+│   ├── ToggleButton.tsx
+│   ├── VerticalDash.tsx
+│   └── icons/
+│       ├── Arrow.tsx
+│       ├── ChevronLeftIcon.tsx
+│       ├── ChevronRightIcon.tsx
+│       ├── CloseIcon.tsx
+│       ├── DateIcon.tsx
+│       ├── DoubleChevronLeftIcon.tsx
+│       └── DoubleChevronRightIcon.tsx
+├── constants/
+│   ├── index.ts                  # Colors, defaults, Tailwind class maps
+│   └── shortcuts.ts
+├── contexts/
+│   └── DatepickerContext.ts      # createContext + DatepickerStore interface
+├── helpers/
+│   └── index.ts                  # classNames, generateArrayNumber, ucFirst, shortString
+├── hooks/
+│   └── index.ts                  # useOnClickOutside
+├── libs/
+│   └── date.ts                   # dayjs wrappers (dateFormat, dateIsValid, …)
+└── types/
+    └── index.ts                  # All exported TypeScript types / interfaces
 ```
+
+### Build Pipeline
+
+```
+Rollup (rollup.config.js)
+  └── @rollup/plugin-typescript (tsconfig.rollup.json)
+        → dist/index.cjs.js   (CommonJS)
+        → dist/index.esm.js   (ES Module)
+        → dist/index.d.ts     (TypeScript declarations)
+```
+
+`tsconfig.rollup.json` extends `tsconfig.base.json` and sets `"jsx": "react-jsx"`. `tsconfig.json`
+extends `tsconfig.base.json` and sets `"jsx": "preserve"` for Next.js IDE support.
 
 ---
 
 ## Testing
 
-### Unit Tests (Jest)
+### Current Status
 
-- Tests live in `__tests__/` directories colocated with the source they test.
-- Setup file: `jest.setup.tsx` — mocks react-intl, aws-amplify, loglevel, FontAwesome, fetch,
-  ResizeObserver, crypto.
-- Use `@testing-library/react` (`render`, `screen`, `fireEvent`, `act`).
-- Mock native dialog APIs: `HTMLDialogElement.prototype.showModal = jest.fn()`.
-- Use `jest.useFakeTimers()` for timer-dependent behavior (e.g. notification auto-dismiss).
-- Use `TestingProvider` from `./testing` to wrap components under test with all required providers.
+**No unit tests exist.** The `package.json` includes no Jest or other test runner.
 
-```bash
-npm test
-# single file:
-npx jest src/authentication/components/__tests__/toSignIn.test.tsx
-```
-
-### Test IDs
-
-All interactive elements that are tested must have a `data-testid` attribute. Use the `testIdPrefix`
-prop on shared input components, which generates `data-testid="{testIdPrefix}-input"` etc.
+When adding tests, the recommended approach is Jest + `@testing-library/react`, colocated in
+`__tests__/` directories next to the files they cover.
 
 ---
 
 ## Requirements Traceability
 
-All feature requirements live in `requirements/` and use `REQ-{AREA}-{SUB}-{NUMBER}` identifiers
-(e.g. `REQ-SIGNIN-FRM-01`, `REQ-INP-EMAIL-01`). When implementing or modifying a component, consult
-the corresponding requirements file to ensure conformance.
+Feature requirements (if any) should be placed in `requirements/` using `REQ-{AREA}-{SUB}-{NUMBER}`
+identifiers (e.g. `REQ-DP-RANGE-01`).
 
 ---
 
@@ -193,17 +200,3 @@ After completing any significant task:
 
 If WORKLOG.md is ambiguous, run `git log --oneline -20` and `git diff HEAD~5` to recover recent
 context before proceeding.
-
----
-
-## Build Config
-
-Build-time AWS config is injected via `build-config.dev.json` / `build-config.prod.json` through the
-`@config` alias:
-
-```json
-{
-    "AWS_COGNITO_POOL_ID": "",
-    "AWS_COGNITO_APP_ID": ""
-}
-```

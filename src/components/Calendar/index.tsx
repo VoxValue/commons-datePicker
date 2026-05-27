@@ -16,6 +16,7 @@ import {
     previousDaysInWeek,
     weekDayStringToIndex
 } from "../../libs/date";
+import { DateType } from "../../types";
 import ChevronLeftIcon from "../icons/ChevronLeftIcon";
 import ChevronRightIcon from "../icons/ChevronRightIcon";
 import DoubleChevronLeftIcon from "../icons/DoubleChevronLeftIcon";
@@ -26,8 +27,6 @@ import Days from "./Days";
 import Months from "./Months";
 import Week from "./Week";
 import Years from "./Years";
-
-import { DateType } from "types";
 
 const NUMBER_YEARS_SHOW = 12;
 const CALENDAR_SIZE = 42;
