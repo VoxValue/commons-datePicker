@@ -1,0 +1,37 @@
+{
+    "permissions": {
+        "allow": ["Bash(npm run test:unit)"]
+    },
+    "worktree": {
+        "symlinkDirectories": ["node_modules"]
+    },
+    "hooks": {
+        "PostToolUse": [
+            {
+                "matcher": "Edit|Write",
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "FILE=$(jq -r '.tool_input.file_path // .tool_response.filePath // empty' 2>/dev/null); if [ -z \"$FILE\" ]; then exit 0; fi; if echo \"$FILE\" | grep -qE 'src/.*\\.(ts|tsx|css)$'; then jq -n --arg f \"$FILE\" '{\"hookSpecificOutput\":{\"hookEventName\":\"PostToolUse\",\"additionalContext\":(\"File edited: \" + $f + \". Run a code review per /engineering:code-review: naming conventions (o-prefix variables, a-prefix parameters, PascalCase components), React 19 patterns (useActionState, useMemo), TypeScript strict compliance, accessibility (aria-*). Report any violations.\")}}'; fi",
+                        "statusMessage": "Queuing code review for edited source file...",
+                        "timeout": 10
+                    }
+                ]
+            }
+        ],
+        "PreToolUse": [
+            {
+                "matcher": "Bash",
+                "hooks": [
+                    {
+                        "type": "command",
+                        "if": "Bash(git commit*)",
+                        "command": "if ! npm run test:unit >&2; then echo '{\"continue\": false, \"stopReason\": \"Unit tests failed — fix failing tests before committing.\"}'; fi",
+                        "statusMessage": "Running unit tests before commit...",
+                        "timeout": 120
+                    }
+                ]
+            }
+        ]
+    }
+}
