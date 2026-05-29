@@ -208,6 +208,34 @@ tests covering every exported function.
 
 ---
 
+## 2026-05-29 — Add `DatePicker` component with FormData / constraint-validation support
+
+### Summary
+
+Added a new `DatePicker` named export alongside the existing `Datepicker` default export. `DatePicker` is designed for single-date, form-integrated use cases mirroring the `DatePickerProps` interface used in `commons-SPA`.
+
+### Files changed
+
+| File | Change |
+| --- | --- |
+| `src/components/DatePickerField.tsx` | New — `DatePicker` component with hidden `<input type="date">` for FormData and browser constraint validation |
+| `src/types/index.ts` | Added `DatePickerProps` interface |
+| `src/libs/date.ts` | Added `dateToIso(date: Date): string` export |
+| `src/index.tsx` | Added `export { DatePicker } from "./components/DatePickerField"` |
+
+### Decisions
+
+- **`DatePickerField.tsx` filename**: macOS's case-insensitive filesystem prevents a file named `DatePicker.tsx` alongside `Datepicker.tsx`. The file is named `DatePickerField.tsx`; the exported component is still `DatePicker`.
+- **Hidden `<input type="date">`**: Participates in FormData and browser constraint validation (`required`, `min`, `max`). `onInvalid` prevents the native browser tooltip; error state is shown via a custom `<p role="alert">`.
+- **`ariaLabelId` / `errorId` as plain strings**: The library has no `react-intl` dependency. Consumers (e.g. `commons-SPA`) resolve i18n keys to strings before passing them.
+- **Error styling on visible input**: `inputClassName` prop propagates a red border/ring to the visible `Datepicker` when `errorActive` is true. Full `aria-invalid` forwarding to the inner input requires a future change to `Datepicker.tsx` / `Input.tsx`.
+
+### Testing
+
+- `npm run build` — lint 0 errors, tsdown produced `dist/index.mjs` and `dist/index.d.mts`
+
+---
+
 ## 2026-05-27 — Drop CJS output, ESM-only
 
 ### Summary
