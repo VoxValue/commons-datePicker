@@ -94,6 +94,20 @@ export interface DatepickerType {
     required?: boolean;
 }
 
+export interface DatePickerProps {
+    name: string;
+    defaultValue?: string;
+    required?: boolean;
+    min?: Date;
+    max?: Date;
+    testIdPrefix?: string;
+    /** Used as aria-label on the hidden date input. Pass a pre-formatted string (resolve i18n in the consumer). */
+    ariaLabelId?: string;
+    /** Error message text displayed when validation fails. Pass a pre-formatted string. */
+    errorId?: string;
+    onChange?: (value: string) => void;
+}
+
 export type ColorKeys = (typeof COLORS)[number]; // "blue" | "orange"
 
 export interface Colors {

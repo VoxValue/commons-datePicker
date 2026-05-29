@@ -280,6 +280,10 @@ export function dateAdd(date: Date, value: number, unit: ManipulateUnit): Date {
     return fromPlainDate(result);
 }
 
+export function dateToIso(date: Date): string {
+    return toPlainDate(date).toString(); // "YYYY-MM-DD"
+}
+
 export function getNextDates(date: Date, limit: number): Date[] {
     if (!dateIsValid(date)) return [];
 
